@@ -38,49 +38,61 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
       redirect('/login?error=Please+enter+your+student+ID')
     }
 
-    const email = makeStudentEmail(studentId)
-    const password = studentId
-
     const supabase = await createClient()
 
-    const { error: signInError } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    })
-
-    if (!signInError) {
-      redirect(nextPath)
-    }
-
-    const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
-      email,
-      password,
-    })
-
-    if (signUpError) {
-      redirect(`/login?error=${encodeURIComponent(signUpError.message)}`)
-    }
-
-    if (!signUpData.user) {
-      redirect('/login?error=Could+not+create+account')
-    }
-
-    const { data: existingMember } = await supabase
+    const { data: member } = await supabase
       .from('members')
-      .select('id')
-      .eq('id', signUpData.user.id)
+      .select('student_id, full_name, is_admin, can_access')
+      .eq('student_id', studentId)
       .maybeSingle()
 
-    if (!existingMember) {
-      const { error: insertError } = await supabase.from('members').insert({
-        id: signUpData.user.id,
-        student_id: studentId,
-        full_name: `Student ${studentId}`
+    if (!member) {
+      redirect('/login?error=Student+ID+not+approved')
+    }
+
+    if (!member.can_access) {
+      redirect('/login?error=Access+disabled')
+    }
+
+    const email = `${studentId}@vec.local`
+    const password = studentId
+
+    const { data: signInData, error: signInError } =
+      await supabase.auth.signInWithPassword({
+        email,
+        password,
       })
 
-      if (insertError) {
-        redirect(`/login?error=${encodeURIComponent(insertError.message)}`)
+    let authUser = signInData.user
+
+    if (signInError) {
+      const { data: signUpData, error: signUpError } =
+        await supabase.auth.signUp({
+          email,
+          password,
+        })
+
+      if (signUpError) {
+        redirect(`/login?error=${encodeURIComponent(signUpError.message)}`)
       }
+
+      authUser = signUpData.user
+    }
+
+    if (!authUser) {
+      redirect('/login?error=Login+failed')
+    }
+
+    const { error: updateError } = await supabase
+      .from('members')
+      .update({
+        auth_user_id: authUser.id,
+        email,
+      })
+      .eq('student_id', studentId)
+
+    if (updateError) {
+      redirect(`/login?error=${encodeURIComponent(updateError.message)}`)
     }
 
     redirect(nextPath)
