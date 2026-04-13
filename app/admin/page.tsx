@@ -51,6 +51,8 @@ export default async function AdminPage() {
       const baseUrl = (process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000').replace(/\/$/, '')
       const scanUrl = `${baseUrl}/scan/${encodeURIComponent(qr.token)}`
 
+      const qrImage = await QRCode.toDataURL(scanUrl)
+      
       return {
         ...qr,
         scanUrl,
