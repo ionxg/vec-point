@@ -24,7 +24,7 @@ export default async function MePage() {
 
   const { data: member, error: memberError } = await supabase
     .from('members')
-    .select('student_id, full_name, email, is_admin')
+    .select('student_id, full_name, email, is_admin, points')
     .eq('auth_user_id', user.id)
     .single()
 
@@ -57,7 +57,7 @@ export default async function MePage() {
   }
 
   const safeLogs = (logs || []) as LogRow[]
-  const totalPoints = safeLogs.reduce((sum, log) => sum + log.points, 0)
+  const totalPoints = member.points ?? 0
 
   async function logout() {
     'use server'
