@@ -1,5 +1,15 @@
+import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
+
+type LogRow = {
+  id: string
+  points: number
+  created_at: string
+  qr_codes: {
+    title: string
+  } | null
+}
 
 export default async function MePage() {
   const supabase = await createClient()
@@ -14,57 +24,110 @@ export default async function MePage() {
 
   const { data: member, error: memberError } = await supabase
     .from('members')
-    .select('full_name, student_id, email')
+    .select('id, full_name, student_id, email, is_admin')
     .eq('id', user.id)
     .single()
 
-  const { data: scoreRow } = await supabase
-    .from('member_scores')
-    .select('total_points')
-    .eq('id', user.id)
-    .single()
+  if (memberError || !member) {
+    return (
+      <main className="min-h-screen p-8">
+        <div className="mx-auto max-w-3xl">
+          <h1 className="text-3xl font-bold mb-4">My Score</h1>
+          <p>Could not load your member profile.</p>
+        </div>
+      </main>
+    )
+  }
 
-  const { data: logs } = await supabase
+  const { data: logs, error: logsError } = await supabase
     .from('point_logs')
     .select('id, points, created_at, qr_codes(title)')
     .eq('member_id', user.id)
     .order('created_at', { ascending: false })
 
-  if (memberError || !member) {
+  if (logsError) {
     return (
-      <main className="p-6">
-        <h1 className="text-2xl font-bold">My Score</h1>
-        <p className="mt-4">Could not load your member profile.</p>
+      <main className="min-h-screen p-8">
+        <div className="mx-auto max-w-3xl">
+          <h1 className="text-3xl font-bold mb-4">My Score</h1>
+          <p>Could not load your points history.</p>
+        </div>
       </main>
     )
   }
 
+  const safeLogs = (logs || []) as LogRow[]
+  const totalPoints = safeLogs.reduce((sum, log) => sum + log.points, 0)
+
+  async function logout() {
+    'use server'
+
+    const supabase = await createClient()
+    await supabase.auth.signOut()
+    redirect('/login')
+  }
+
   return (
-    <main className="p-6">
-      <h1 className="text-2xl font-bold mb-4">My Score</h1>
+    <main className="min-h-screen p-8">
+      <div className="mx-auto max-w-4xl">
+        <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
+          <h1 className="text-3xl font-bold">My Score</h1>
 
-      <div className="border rounded p-4 mb-6">
-        <p><strong>Name:</strong> {member.full_name}</p>
-        <p><strong>Student ID:</strong> {member.student_id}</p>
-        <p><strong>Email:</strong> {member.email}</p>
-        <p><strong>Total Points:</strong> {scoreRow?.total_points ?? 0}</p>
-      </div>
+          <div className="flex gap-3">
+            {member.is_admin && (
+              <Link href="/admin" className="rounded border px-4 py-2">
+                Admin
+              </Link>
+            )}
 
-      <h2 className="text-xl font-semibold mb-3">Scan History</h2>
-
-      {!logs || logs.length === 0 ? (
-        <p>No scans yet.</p>
-      ) : (
-        <div className="space-y-3">
-          {logs.map((log: any) => (
-            <div key={log.id} className="border rounded p-3">
-              <p><strong>Points:</strong> {log.points}</p>
-              <p><strong>Date:</strong> {new Date(log.created_at).toLocaleString()}</p>
-              <p><strong>QR:</strong> {log.qr_codes?.title ?? 'Unknown QR'}</p>
-            </div>
-          ))}
+            <form action={logout}>
+              <button type="submit" className="rounded bg-black px-4 py-2 text-white">
+                Logout
+              </button>
+            </form>
+          </div>
         </div>
-      )}
+
+        <div className="mb-8 rounded border p-5">
+          <p className="mb-2">
+            <strong>Name:</strong> {member.full_name}
+          </p>
+          <p className="mb-2">
+            <strong>Student ID:</strong> {member.student_id}
+          </p>
+          <p className="mb-2">
+            <strong>Email:</strong> {member.email}
+          </p>
+          <p className="text-xl font-semibold">
+            Total Points: {totalPoints}
+          </p>
+        </div>
+
+        <div>
+          <h2 className="text-2xl font-semibold mb-4">Scan History</h2>
+
+          {safeLogs.length === 0 ? (
+            <p className="rounded border p-4">No scans yet.</p>
+          ) : (
+            <div className="space-y-3">
+              {safeLogs.map((log) => (
+                <div key={log.id} className="rounded border p-4">
+                  <p className="mb-1">
+                    <strong>QR:</strong> {log.qr_codes?.title || 'Unknown QR'}
+                  </p>
+                  <p className="mb-1">
+                    <strong>Points:</strong> {log.points}
+                  </p>
+                  <p>
+                    <strong>Date:</strong>{' '}
+                    {new Date(log.created_at).toLocaleString()}
+                  </p>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
     </main>
   )
 }
