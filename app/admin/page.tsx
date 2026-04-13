@@ -1,12 +1,8 @@
 import Link from 'next/link'
+import Image from 'next/image'
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
-
-type AdminPageProps = {
-  searchParams: Promise<{
-    message?: string
-  }>
-}
+import QRCode from 'qrcode'
 
 type QrRow = {
   id: string
@@ -17,10 +13,12 @@ type QrRow = {
   created_at: string
 }
 
-export default async function AdminPage({ searchParams }: AdminPageProps) {
-  const params = await searchParams
-  const message = params.message
+type QrWithImage = QrRow & {
+  qrImage: string
+  scanUrl: string
+}
 
+export default async function AdminPage() {
   const supabase = await createClient()
 
   const {
@@ -46,6 +44,21 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
     .select('id, title, token, points, active, created_at')
     .order('created_at', { ascending: false })
 
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'
+
+  const qrCodesWithImages: QrWithImage[] = await Promise.all(
+    ((qrCodes || []) as QrRow[]).map(async (qr) => {
+      const scanUrl = `${baseUrl}/scan/${qr.token}`
+      const qrImage = await QRCode.toDataURL(scanUrl)
+
+      return {
+        ...qr,
+        scanUrl,
+        qrImage,
+      }
+    })
+  )
+
   async function logout() {
     'use server'
 
@@ -56,7 +69,7 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
 
   return (
     <main className="min-h-screen p-8">
-      <div className="mx-auto max-w-5xl">
+      <div className="mx-auto max-w-6xl">
         <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
           <h1 className="text-3xl font-bold">Admin Dashboard</h1>
 
@@ -75,21 +88,24 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
           </div>
         </div>
 
-        {message && (
-          <p className="mb-4 rounded border border-green-300 bg-green-50 p-3 text-green-700">
-            {message}
-          </p>
-        )}
-
         <div className="rounded border p-5">
           <h2 className="text-2xl font-semibold mb-4">QR Codes</h2>
 
-          {!qrCodes || qrCodes.length === 0 ? (
+          {qrCodesWithImages.length === 0 ? (
             <p>No QR codes yet.</p>
           ) : (
-            <div className="space-y-3">
-              {(qrCodes as QrRow[]).map((qr) => (
+            <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+              {qrCodesWithImages.map((qr) => (
                 <div key={qr.id} className="rounded border p-4">
+                  <div className="mb-4 flex justify-center">
+                    <Image
+                      src={qr.qrImage}
+                      alt={`QR code for ${qr.title}`}
+                      width={220}
+                      height={220}
+                    />
+                  </div>
+
                   <p className="mb-1">
                     <strong>Title:</strong> {qr.title}
                   </p>
@@ -99,11 +115,11 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
                   <p className="mb-1">
                     <strong>Status:</strong> {qr.active ? 'Active' : 'Inactive'}
                   </p>
-                  <p className="mb-1">
+                  <p className="mb-1 break-all">
                     <strong>Token:</strong> {qr.token}
                   </p>
-                  <p className="mb-1">
-                    <strong>Scan URL:</strong> /scan/{qr.token}
+                  <p className="mb-1 break-all">
+                    <strong>Scan URL:</strong> {qr.scanUrl}
                   </p>
                   <p>
                     <strong>Created:</strong>{' '}
