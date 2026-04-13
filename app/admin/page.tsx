@@ -31,7 +31,7 @@ export default async function AdminPage() {
 
   const { data: member } = await supabase
     .from('members')
-    .select('id, full_name, is_admin')
+    .select('student_id, full_name, is_admin')
     .eq('auth_user_id', user.id)
     .single()
 
