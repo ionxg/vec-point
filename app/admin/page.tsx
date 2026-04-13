@@ -48,8 +48,8 @@ export default async function AdminPage() {
 
   const qrCodesWithImages: QrWithImage[] = await Promise.all(
     ((qrCodes || []) as QrRow[]).map(async (qr) => {
-      const scanUrl = `${baseUrl}/scan/${qr.token}`
-      const qrImage = await QRCode.toDataURL(scanUrl)
+      const baseUrl = (process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000').replace(/\/$/, '')
+      const scanUrl = `${baseUrl}/scan/${encodeURIComponent(qr.token)}`
 
       return {
         ...qr,
