@@ -24,8 +24,8 @@ export default async function AdminQrPage({ searchParams }: AdminQrPageProps) {
 
   const { data: member } = await supabase
     .from('members')
-    .select('id, is_admin')
-    .eq('id', user.id)
+    .select('student_id, is_admin')
+    .eq('auth_user_id', user.id)
     .single()
 
   if (!member?.is_admin) {
