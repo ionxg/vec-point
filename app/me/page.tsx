@@ -57,7 +57,8 @@ export default async function MePage() {
   }
 
   const safeLogs = (logs || []) as LogRow[]
-  const totalPoints = member.total_points ?? 0
+  const totalPoints =
+  (member.total_points ?? 0) + safeLogs.reduce((sum, log) => sum + log.points, 0)
 
   async function logout() {
     'use server'
