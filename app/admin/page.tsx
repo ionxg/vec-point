@@ -32,7 +32,7 @@ export default async function AdminPage() {
   const { data: member } = await supabase
     .from('members')
     .select('id, full_name, is_admin')
-    .eq('id', user.id)
+    .eq('auth_user_id', user.id)
     .single()
 
   if (!member?.is_admin) {
@@ -52,7 +52,7 @@ export default async function AdminPage() {
       const scanUrl = `${baseUrl}/scan/${encodeURIComponent(qr.token)}`
 
       const qrImage = await QRCode.toDataURL(scanUrl)
-      
+
       return {
         ...qr,
         scanUrl,
