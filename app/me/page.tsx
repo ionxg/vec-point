@@ -24,7 +24,7 @@ export default async function MePage() {
 
   const { data: member, error: memberError } = await supabase
     .from('members')
-    .select('id, full_name, student_id, email, is_admin')
+    .select('id, full_name, student_id, is_admin')
     .eq('id', user.id)
     .single()
 
@@ -94,9 +94,6 @@ export default async function MePage() {
           </p>
           <p className="mb-2">
             <strong>Student ID:</strong> {member.student_id}
-          </p>
-          <p className="mb-2">
-            <strong>Email:</strong> {member.email}
           </p>
           <p className="text-xl font-semibold">
             Total Points: {totalPoints}

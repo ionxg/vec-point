@@ -9,6 +9,10 @@ type LoginPageProps = {
   }>
 }
 
+function makeStudentEmail(studentId: string) {
+  return `${studentId}@vec.local`
+}
+
 export default async function LoginPage({ searchParams }: LoginPageProps) {
   const params = await searchParams
   const error = params.error
@@ -27,23 +31,56 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
   async function login(formData: FormData) {
     'use server'
 
-    const email = String(formData.get('email') || '').trim()
-    const password = String(formData.get('password') || '')
+    const studentId = String(formData.get('student_id') || '').trim()
     const nextPath = String(formData.get('next') || '/me')
 
-    if (!email || !password) {
-      redirect('/login?error=Please+fill+in+email+and+password')
+    if (!studentId) {
+      redirect('/login?error=Please+enter+your+student+ID')
     }
+
+    const email = makeStudentEmail(studentId)
+    const password = studentId
 
     const supabase = await createClient()
 
-    const { error } = await supabase.auth.signInWithPassword({
+    const { error: signInError } = await supabase.auth.signInWithPassword({
       email,
       password,
     })
 
-    if (error) {
-      redirect(`/login?error=${encodeURIComponent(error.message)}`)
+    if (!signInError) {
+      redirect(nextPath)
+    }
+
+    const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
+      email,
+      password,
+    })
+
+    if (signUpError) {
+      redirect(`/login?error=${encodeURIComponent(signUpError.message)}`)
+    }
+
+    if (!signUpData.user) {
+      redirect('/login?error=Could+not+create+account')
+    }
+
+    const { data: existingMember } = await supabase
+      .from('members')
+      .select('id')
+      .eq('id', signUpData.user.id)
+      .maybeSingle()
+
+    if (!existingMember) {
+      const { error: insertError } = await supabase.from('members').insert({
+        id: signUpData.user.id,
+        student_id: studentId,
+        full_name: `Student ${studentId}`
+      })
+
+      if (insertError) {
+        redirect(`/login?error=${encodeURIComponent(insertError.message)}`)
+      }
     }
 
     redirect(nextPath)
@@ -52,7 +89,7 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
   return (
     <main className="min-h-screen p-8">
       <div className="mx-auto max-w-md">
-        <h1 className="text-3xl font-bold mb-6">Login</h1>
+        <h1 className="text-3xl font-bold mb-6">Student Login</h1>
 
         {error && (
           <p className="mb-4 rounded border border-red-300 bg-red-50 p-3 text-red-700">
@@ -70,24 +107,18 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
           <input type="hidden" name="next" value={next} />
 
           <div>
-            <label className="mb-1 block font-medium">Email</label>
+            <label className="mb-1 block font-medium">Student ID</label>
             <input
-              name="email"
-              type="email"
+              name="student_id"
+              type="text"
               className="w-full rounded border px-3 py-2"
               required
             />
           </div>
 
-          <div>
-            <label className="mb-1 block font-medium">Password</label>
-            <input
-              name="password"
-              type="password"
-              className="w-full rounded border px-3 py-2"
-              required
-            />
-          </div>
+          <p className="text-sm text-gray-600">
+            Your default password is your student ID.
+          </p>
 
           <button
             type="submit"
