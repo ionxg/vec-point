@@ -111,7 +111,7 @@ export default async function MePage() {
               {safeLogs.map((log) => (
                 <div key={log.id} className="rounded border p-4">
                   <p className="mb-1">
-                    <strong>QR:</strong> {log.qr_codes?.[0]?.title || 'Unknown QR'}
+                    <strong>Event Name:</strong> {log.qr_codes?.[0]?.title || 'Unknown QR'}
                   </p>
                   <p className="mb-1">
                     <strong>Points:</strong> {log.points}
