@@ -1,3 +1,4 @@
+import Image from 'next/image'
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 
@@ -101,7 +102,17 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
   return (
     <main className="min-h-screen p-8">
       <div className="mx-auto max-w-md">
-        <h1 className="text-3xl font-bold mb-6">Student Login</h1>
+        <div className="mb-6 flex flex-col items-center">
+          <Image
+            src="/vec-logo.png"
+            alt="VEC Logo"
+            width={110}
+            height={110}
+            className="mb-3"
+          />
+          <h1 className="text-3xl font-bold">Member Login</h1>
+          <p className="text-sm text-gray-600">Victoria Engineering Club</p>
+        </div>
 
         {error && (
           <p className="mb-4 rounded border border-red-300 bg-red-50 p-3 text-red-700">
