@@ -1,5 +1,4 @@
 import Link from 'next/link'
-import Image from 'next/image'
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 
@@ -33,16 +32,7 @@ export default async function MePage() {
     return (
       <main className="min-h-screen p-8">
         <div className="mx-auto max-w-3xl">
-          <div className="mb-6 flex flex-col items-center">
-            <Image
-              src="/VEC-logo.png"
-              alt="VEC Logo"
-              width={100}
-              height={100}
-              className="mb-3"
-            />
-            <h1 className="text-3xl font-bold mb-4">My Score</h1>
-          </div>
+          <h1 className="text-3xl font-bold mb-4">My Score</h1>
           <p>Could not load your member profile.</p>
         </div>
       </main>
@@ -59,16 +49,7 @@ export default async function MePage() {
     return (
       <main className="min-h-screen p-8">
         <div className="mx-auto max-w-3xl">
-          <div className="mb-6 flex flex-col items-center">
-            <Image
-              src="/VEC-logo.png"
-              alt="VEC Logo"
-              width={100}
-              height={100}
-              className="mb-3"
-            />
-            <h1 className="text-3xl font-bold mb-4">My Score</h1>
-          </div>
+          <h1 className="text-3xl font-bold mb-4">My Score</h1>
           <p>Could not load your points history.</p>
         </div>
       </main>
@@ -77,7 +58,7 @@ export default async function MePage() {
 
   const safeLogs = (logs || []) as LogRow[]
   const totalPoints =
-    (member.total_points ?? 0) + safeLogs.reduce((sum, log) => sum + log.points, 0)
+  (member.total_points ?? 0) + safeLogs.reduce((sum, log) => sum + log.points, 0)
 
   async function logout() {
     'use server'
@@ -90,17 +71,6 @@ export default async function MePage() {
   return (
     <main className="min-h-screen p-8">
       <div className="mx-auto max-w-4xl">
-        <div className="mb-8 flex flex-col items-center">
-          <Image
-            src="/VEC-logo.png"
-            alt="VEC Logo"
-            width={110}
-            height={110}
-            className="mb-3"
-          />
-          <h1 className="text-2xl font-bold tracking-wide">Victoria Engineering Club</h1>
-        </div>
-
         <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
           <h1 className="text-3xl font-bold">My Score</h1>
 
