@@ -36,7 +36,6 @@ export default async function ScanPage({ params, searchParams }: ScanPageProps) 
     'use server'
 
     const tokenValue = String(formData.get('token') || '')
-
     const supabase = await createClient()
 
     const {
@@ -97,7 +96,7 @@ export default async function ScanPage({ params, searchParams }: ScanPageProps) 
   return (
     <main className="min-h-screen p-8">
       <div className="mx-auto max-w-2xl">
-        <h1 className="text-3xl font-bold mb-6">Scan QR</h1>
+        <h1 className="mb-6 text-3xl font-bold">Scan QR</h1>
 
         {error && (
           <p className="mb-4 rounded border border-red-300 bg-red-50 p-3 text-red-700">
@@ -122,18 +121,19 @@ export default async function ScanPage({ params, searchParams }: ScanPageProps) 
             </p>
 
             {!qrCode.active ? (
-              <p className="text-red-600">This QR code is inactive.</p>
+              <p className="mb-4 text-red-600">This QR code is inactive.</p>
             ) : (
-              <form action={claimPoints}>
+              <form action={claimPoints} className="mb-4">
                 <input type="hidden" name="token" value={token} />
-                <button
-                  type="submit"
-                  className="rounded bg-black px-4 py-2 text-white"
-                >
+                <button type="submit" className="rounded bg-black px-4 py-2 text-white">
                   Claim Points
                 </button>
               </form>
             )}
+
+            <Link href="/me" className="inline-block rounded border px-4 py-2">
+              Return to My Score
+            </Link>
           </div>
         )}
       </div>
