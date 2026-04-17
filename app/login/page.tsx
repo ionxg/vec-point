@@ -140,7 +140,7 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
           </div>
 
           <p className="text-sm text-gray-600">
-            Your default password is your student ID.
+            You need to register as our member first before you can access this website.
           </p>
 
           <button
