@@ -13,7 +13,7 @@ export default async function HomePage() {
       <div className="mx-auto max-w-3xl">
         <div className="mb-6 flex flex-col items-center">
           <Image
-            src="/VEC-logo.png"
+            src="/vec-logo.png"
             alt="VEC Logo"
             width={110}
             height={110}
