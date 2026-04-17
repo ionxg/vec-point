@@ -106,8 +106,8 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
           <Image
             src="/vec-logo.png"
             alt="VEC Logo"
-            width={110}
-            height={110}
+            width={210}
+            height={210}
             className="mb-3"
           />
           <h1 className="text-3xl font-bold">Member Login</h1>

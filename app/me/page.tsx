@@ -37,8 +37,8 @@ export default async function MePage() {
             <Image
               src="/vec-logo.png"
               alt="VEC Logo"
-              width={100}
-              height={100}
+              width={200}
+              height={200}
               className="mb-3"
             />
             <h1 className="text-3xl font-bold mb-4">My Score</h1>
@@ -63,8 +63,8 @@ export default async function MePage() {
             <Image
               src="/vec-logo.png"
               alt="VEC Logo"
-              width={100}
-              height={100}
+              width={200}
+              height={200}
               className="mb-3"
             />
             <h1 className="text-3xl font-bold mb-4">My Score</h1>
@@ -94,8 +94,8 @@ export default async function MePage() {
           <Image
             src="/vec-logo.png"
             alt="VEC Logo"
-            width={110}
-            height={110}
+            width={210}
+            height={210}
             className="mb-3"
           />
           <h1 className="text-2xl font-bold tracking-wide">Victoria Engineering Club</h1>

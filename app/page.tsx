@@ -15,8 +15,8 @@ export default async function HomePage() {
           <Image
             src="/vec-logo.png"
             alt="VEC Logo"
-            width={110}
-            height={110}
+            width={310}
+            height={310}
             className="mb-3"
           />
           <h1 className="text-4xl font-bold mb-2">VEC Points</h1>
