@@ -140,7 +140,7 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
           </div>
 
           <p className="text-sm text-gray-600">
-            You need to register as our member first before you can access this website.
+            You need to register as our member first before you can access this website. Any question, contact: contact@vec.ac.nz
           </p>
 
           <button
