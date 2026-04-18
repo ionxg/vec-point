@@ -82,7 +82,8 @@ export default async function MePage() {
       : (log.qr_codes?.title ?? 'Unknown QR'),
   }))
 
-  const totalPoints = member.total_points ?? 0
+  const totalPoints =
+    (member.total_points ?? 0) + safeLogs.reduce((sum, log) => sum + log.points, 0)
 
   async function logout() {
     'use server'
