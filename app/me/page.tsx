@@ -7,9 +7,7 @@ type LogRow = {
   id: string
   points: number
   created_at: string
-  qr_codes: {
-    title: string
-  }[] | null
+  qr_title: string
 }
 
 export default async function MePage() {
@@ -75,9 +73,16 @@ export default async function MePage() {
     )
   }
 
-  const safeLogs = (logs || []) as LogRow[]
-  const totalPoints =
-    (member.total_points ?? 0) + safeLogs.reduce((sum, log) => sum + log.points, 0)
+  const safeLogs: LogRow[] = (logs ?? []).map((log: any) => ({
+    id: log.id,
+    points: log.points,
+    created_at: log.created_at,
+    qr_title: Array.isArray(log.qr_codes)
+      ? (log.qr_codes[0]?.title ?? 'Unknown QR')
+      : (log.qr_codes?.title ?? 'Unknown QR'),
+  }))
+
+  const totalPoints = member.total_points ?? 0
 
   async function logout() {
     'use server'
@@ -141,7 +146,7 @@ export default async function MePage() {
               {safeLogs.map((log) => (
                 <div key={log.id} className="rounded border p-4">
                   <p className="mb-1">
-                    <strong>Event Name:</strong> {log.qr_codes?.title || 'Unknown QR'}
+                    <strong>Event Name:</strong> {log.qr_title}
                   </p>
                   <p className="mb-1">
                     <strong>Points:</strong> {log.points}
