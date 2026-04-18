@@ -105,7 +105,7 @@ export default async function AdminQrPage({ searchParams }: AdminQrPageProps) {
               name="title"
               type="text"
               className="w-full rounded border px-3 py-2"
-              placeholder="Welcome Night 2026"
+              placeholder="Event Name"
               required
             />
           </div>
