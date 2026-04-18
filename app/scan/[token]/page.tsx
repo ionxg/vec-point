@@ -81,15 +81,6 @@ export default async function ScanPage({ params, searchParams }: ScanPageProps) 
       redirect(`/scan/${tokenValue}?error=${encodeURIComponent(insertError.message)}`)
     }
 
-    const { error: updatePointsError } = await supabase.rpc('add_member_points', {
-      p_auth_user_id: user.id,
-      p_points: qrCode.points,
-    })
-
-    if (updatePointsError) {
-      redirect(`/scan/${tokenValue}?error=${encodeURIComponent(updatePointsError.message)}`)
-    }
-
     redirect('/me')
   }
 
